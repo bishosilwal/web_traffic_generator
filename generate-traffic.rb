@@ -26,7 +26,7 @@ HOST = 'https://mailet.in'
 		                             pid_dir: '/Users/silwal/files/workspace/traffic-generator/tor/pid/dir',
 		                             log_dir: '/Users/silwal/files/workspace/traffic-generator/tor/log/dir',
 		                             tor_data_dir: '/Users/silwal/files/workspace/traffic-generator/tor/datadir',
-		                             tor_new_circuit_period: 120,
+		                             tor_new_circuit_period: 15,
 		                             max_tor_memory_usage_mb: 400,
 		                             max_tor_cpu_percentage: 15,
 		                             eye_logging: true,
@@ -46,17 +46,19 @@ HOST = 'https://mailet.in'
 		
 		tor_process.start
 
-		20.times do
+		5.times do
 			rand(2..10).times do
 				puts "make request to #{HOST}"
 				browser.get(HOST)
 			end
-			puts "changing tor relay and ip"
+
+			puts "changing tor ip..."
 			tor_ip_control.get_new_ip
 			puts 'current_ip: ' + tor_ip_control.ip
 		end
 
 		tor_process.stop
+		system('eye q -s')
 
 		wait = Selenium::WebDriver::Wait.new(timeout: 30)
 		wait.until { !browser.find_element(class: 'mail').text.empty? }
