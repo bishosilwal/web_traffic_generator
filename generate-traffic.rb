@@ -56,6 +56,7 @@ HOST = 'https://mailet.in'
 		end
 
 		tor_process.stop
+		# stop all eye monitoring process
 		system('eye q -s')
 
 		wait = Selenium::WebDriver::Wait.new(timeout: 30)
