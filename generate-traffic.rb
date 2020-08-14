@@ -56,7 +56,7 @@ HOST = 'https://mailet.in'
 		tor_process.start
 
 		10.times do
-			rand(2..10).times do
+			rand(2..6).times do
 				puts "make request to #{HOST}"
 				browser.get(HOST)
 			end
@@ -75,5 +75,4 @@ HOST = 'https://mailet.in'
 end
 
 threads.each {|thr| thr.join }
-
 
