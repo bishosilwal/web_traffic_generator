@@ -60,7 +60,7 @@ begin
 			tor_process.start
 
 			20.times do |i|
-				rand(2..6).times do
+				rand(2..5).times do
 					puts "make request to #{HOST}"
 					browser.get(HOST)
 				end
