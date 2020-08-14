@@ -5,13 +5,22 @@ require 'selenium-webdriver'
 require 'tormanager'
 
 threads = []
-port_pool = { 9050 => 50501, 9051 =>50502 , 9052 => 50503, 9053 => 50504 }
+port_pool = { 
+	9050 => 50501,
+	9051 => 50502 , 
+	9052 => 50503, 
+	9053 => 50504, 
+	9054 => 50505, 
+	9055 => 50506, 
+	9056 => 50507, 
+	9057 => 50508 
+}
 
 used_ports = []
 
 HOST = 'https://mailet.in'
 
-4.times do 
+8.times do 
 	current_port = port_pool.keys.sample
 	until !used_ports.include?(current_port) do
 		current_port = port_pool.keys.sample
@@ -46,7 +55,7 @@ HOST = 'https://mailet.in'
 		
 		tor_process.start
 
-		5.times do
+		10.times do
 			rand(2..10).times do
 				puts "make request to #{HOST}"
 				browser.get(HOST)
