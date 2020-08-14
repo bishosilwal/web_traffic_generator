@@ -67,7 +67,7 @@ begin
 
 				begin
 					mutex.synchronize do
-						puts "changning ip(count: #{i})..."
+						puts "changing ip(count: #{i})..."
 						tor_ip_control.get_new_ip
 					end
 				rescue
