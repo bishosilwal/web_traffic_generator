@@ -52,9 +52,7 @@ HOST = 'https://mailet.in'
 				browser.get(HOST)
 			end
 
-			puts "changing tor ip..."
 			tor_ip_control.get_new_ip
-			puts 'current_ip: ' + tor_ip_control.ip
 		end
 
 		tor_process.stop
