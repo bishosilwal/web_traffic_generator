@@ -47,7 +47,7 @@ HOST = 'https://mailet.in'
 		tor_process.start
 
 		20.times do
-			rand(5).times do
+			rand(2..10).times do
 				puts "make request to #{HOST}"
 				browser.get(HOST)
 			end
