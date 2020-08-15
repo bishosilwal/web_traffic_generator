@@ -46,13 +46,12 @@ threads = []
 mutex = Mutex.new
 
 begin
-	10.times do 
+	8.times do 
 		current_port = PORT_POOL.keys.sample
 		until !used_ports.include?(current_port) do
 			current_port = PORT_POOL.keys.sample
 		end
 		used_ports << current_port
-
 		threads << Thread.new do
 			puts "using port: #{current_port}"
 			# tor configuration
@@ -74,17 +73,19 @@ begin
 			cap   = Selenium::WebDriver::Remote::Capabilities.chrome(proxy: proxy)
 			options = Selenium::WebDriver::Chrome::Options.new
 			options.headless!
-			# generate random user agent
 			options.add_argument("--user-agent=#{USER_AGENT.sample}")
-
 			browser = Selenium::WebDriver.for(:chrome, desired_capabilities: cap, options: options)
-			
+
 			tor_process.start
 
-			20.times do |i|
-				rand(2..5).times do
+			8.times do |i|
+				rand(1..3).times do
 					puts "make request to #{HOST}"
-					browser.get(HOST)
+					begin
+						browser.get(HOST)
+					rescue
+
+					end
 				end
 
 				begin
@@ -96,10 +97,14 @@ begin
 					puts "IP change failed, running tor on port: #{current_port} failed to change ip!"
 				end
 
-				if(i % 5 == 0)
+				if(i % 3 == 0)
 					mutex.synchronize do
 						tor_process.stop
 						tor_process.start
+						browser.quit
+
+						options.add_argument("--user-agent=#{USER_AGENT.sample}")
+						browser = Selenium::WebDriver.for(:chrome, desired_capabilities: cap, options: options)
 					end
 				end
 			end
@@ -107,7 +112,10 @@ begin
 			tor_process.stop
 
 			wait = Selenium::WebDriver::Wait.new(timeout: 30)
-			wait.until { !browser.find_element(class: 'mail').text.empty? }
+			begin
+				wait.until { !browser.find_element(class: 'mail').text.empty? }
+			rescue
+			end
 			browser.quit
 		end
 	end
