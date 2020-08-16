@@ -46,7 +46,7 @@ threads = []
 mutex = Mutex.new
 
 begin
-	8.times do 
+	10.times do
 		current_port = PORT_POOL.keys.sample
 		until !used_ports.include?(current_port) do
 			current_port = PORT_POOL.keys.sample
@@ -78,8 +78,8 @@ begin
 
 			tor_process.start
 
-			8.times do |i|
-				rand(1..3).times do
+			20.times do |i|
+				rand(2..5).times do
 					puts "make request to #{HOST}"
 					begin
 						browser.get(HOST)
