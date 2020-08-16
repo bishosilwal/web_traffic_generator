@@ -66,7 +66,7 @@ threads = []
 mutex = Mutex.new
 
 begin
-	30.times do
+	20.times do
 		current_port = PORT_POOL.keys.sample
 		until !used_ports.include?(current_port) do
 			current_port = PORT_POOL.keys.sample
