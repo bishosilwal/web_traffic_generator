@@ -75,7 +75,7 @@ end
 10.times do |i|
 	threads << Thread.new do
 		10.times do |j|
-			organic = (j % 4 == 0) ? true : false
+			organic = (j % 4 == 0) ? false : true
 			pageview_hash = build_pageview_hash(organic, j)
 
 			ENV['http_proxy'] = 'https://' + ip_lists.sample
