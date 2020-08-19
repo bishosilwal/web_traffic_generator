@@ -40,34 +40,43 @@ ip_lists = ip_lists.compact
 
 threads = []
 
+def organic_source(v)
+	return 'google' if(v % 2 == 0)
+	['google', 'yahoo', 'dockdockgo', 'bing', 'baidu', 'ask', 'alice', 'aol', 'cnn', 'live', 'msn'].sample
+end
+
+def build_pageview_hash(organic = true, value)
+	if organic
+		{
+			path: '/',
+			hostname: HOST,
+			title: 'Temporary Disposable Email generator',
+			user_agent: USER_AGENT.sample,
+			referrer: GOOGLE_HOST,
+			data_source: 'web',
+			campaign_source: '(direct)',
+			campaign_medium: '(none)'
+		}
+	else 
+		{
+			path: '/',
+			hostname: HOST,
+			title: 'Temporary Disposable Email generator',
+			user_agent: USER_AGENT.sample,
+			referrer: GOOGLE_HOST,
+			data_source: 'web',
+			campaign_source: organic_source(value),
+			campaign_medium: 'organic',
+			campaign_keyword: 'fake email id generator'
+		}
+	end
+end
+
 10.times do |i|
 	threads << Thread.new do
 		10.times do |j|
-			
-			if(j % 4 == 0)
-				pageview_hash = {
-					path: '/',
-					hostname: HOST,
-					title: 'Temporary Disposable Email generator',
-					user_agent: USER_AGENT.sample,
-					referrer: GOOGLE_HOST,
-					data_source: 'web',
-					campaign_source: '(direct)',
-					campaign_medium: '(none)'
-				}
-			else
-				pageview_hash = {
-					path: '/',
-					hostname: HOST,
-					title: 'Temporary Disposable Email generator',
-					user_agent: USER_AGENT.sample,
-					referrer: GOOGLE_HOST,
-					data_source: 'web',
-					campaign_source: 'google',
-					campaign_medium: 'organic',
-					campaign_keyword: 'fake email id generator'
-				}
-			end
+			organic = (j % 4 == 0) ? true : false
+			pageview_hash = build_pageview_hash(organic, j)
 
 			ENV['http_proxy'] = 'https://' + ip_lists.sample
 			tracker = Staccato.tracker('UA-173576841-1', nil, ssl: true)
