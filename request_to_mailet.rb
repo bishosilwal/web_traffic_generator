@@ -40,18 +40,20 @@ ip_lists = ip_lists.compact
 
 threads = []
 
-20.times do |i|
+10.times do |i|
 	threads << Thread.new do
-		30.times do |j|
+		10.times do |j|
 			
-			if(j % 5 == 0)
+			if(j % 4 == 0)
 				pageview_hash = {
 					path: '/',
 					hostname: HOST,
 					title: 'Temporary Disposable Email generator',
 					user_agent: USER_AGENT.sample,
 					referrer: GOOGLE_HOST,
-					data_source: 'web'
+					data_source: 'web',
+					campaign_source: '(direct)',
+					campaign_medium: '(none)'
 				}
 			else
 				pageview_hash = {
