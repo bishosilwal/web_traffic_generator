@@ -86,6 +86,7 @@ end
 					response = tracker.pageview(pageview_hash)
 					puts "response: #{response}"
 				rescue
+					puts 'timeout! changing ip'
 					ENV['http_proxy'] = 'https://' + ip_lists.sample
 				end
 			end
