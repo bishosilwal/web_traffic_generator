@@ -72,28 +72,30 @@ def build_pageview_hash(organic = true, value)
 	end
 end
 
-10.times do |i|
-	threads << Thread.new do
-		10.times do |j|
-			organic = (j % 4 == 0) ? false : true
-			pageview_hash = build_pageview_hash(organic, j)
+begin
+	10.times do |i|
+		threads << Thread.new do
+			10.times do |j|
+				organic = (j % 4 == 0) ? false : true
+				pageview_hash = build_pageview_hash(organic, j)
 
-			ENV['http_proxy'] = 'https://' + ip_lists.sample
-			tracker = Staccato.tracker('UA-173576841-1', nil, ssl: true)
-			3.times do
-				begin
-					puts 'requesting...'
-					response = tracker.pageview(pageview_hash)
-					puts "response: #{response}"
-				rescue
-					puts 'timeout! changing ip'
-					ENV['http_proxy'] = 'https://' + ip_lists.sample
+				ENV['http_proxy'] = 'https://' + ip_lists.sample
+				tracker = Staccato.tracker('UA-173576841-1', nil, ssl: true)
+				3.times do
+					begin
+						puts 'requesting...'
+						response = tracker.pageview(pageview_hash)
+						puts "response: #{response}"
+					rescue
+						puts 'timeout! changing ip'
+						ENV['http_proxy'] = 'https://' + ip_lists.sample
+					end
 				end
 			end
 		end
 	end
+
+	threads.each(&:join)
+rescue
+	threads.each {|t| Thread.kill t }
 end
-
-threads.each(&:join)
-
-
