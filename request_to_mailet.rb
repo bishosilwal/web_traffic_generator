@@ -54,8 +54,9 @@ def build_pageview_hash(organic = true, value)
 			user_agent: USER_AGENT.sample,
 			referrer: GOOGLE_HOST,
 			data_source: 'web',
-			campaign_source: '(direct)',
-			campaign_medium: '(none)'
+			campaign_source: organic_source(value),
+			campaign_medium: 'organic',
+			campaign_keyword: 'fake email id generator'
 		}
 	else 
 		{
@@ -65,17 +66,16 @@ def build_pageview_hash(organic = true, value)
 			user_agent: USER_AGENT.sample,
 			referrer: GOOGLE_HOST,
 			data_source: 'web',
-			campaign_source: organic_source(value),
-			campaign_medium: 'organic',
-			campaign_keyword: 'fake email id generator'
+			campaign_source: '(direct)',
+			campaign_medium: '(none)'
 		}
 	end
 end
 
 begin
-	10.times do |i|
+	30.times do |i|
 		threads << Thread.new do
-			10.times do |j|
+			20.times do |j|
 				organic = (j % 4 == 0) ? false : true
 				pageview_hash = build_pageview_hash(organic, j)
 
