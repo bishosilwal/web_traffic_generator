@@ -1,6 +1,5 @@
 
 require 'rubygems'
-require 'tormanager'
 require 'byebug'
 require 'staccato'
 
@@ -32,47 +31,26 @@ USER_AGENT = [
 ]
 
 
-tor_process =TorManager::TorProcess.new tor_port: 9050,
-                             control_port: 50501,
-                             pid_dir: '/Users/silwal/files/workspace/traffic-generator/tor/pid/dir',
-                             log_dir: '/Users/silwal/files/workspace/traffic-generator/tor/log/dir',
-                             tor_data_dir: '/Users/silwal/files/workspace/traffic-generator/tor/datadir',
-                             tor_new_circuit_period: 15,
-                             max_tor_memory_usage_mb: 400,
-                             max_tor_cpu_percentage: 15,
-                             eye_logging: true,
-                             tor_logging: true
-tor_proxy = TorManager::Proxy.new tor_process: tor_process
-tor_ip_control = TorManager::IpAddressControl.new tor_process: tor_process, tor_proxy: tor_proxy
-tor_process.start
+10.times do |i|
+	pageview_hash = {
+		path: '/',
+		hostname: HOST,
+		title: 'Temporary Disposable Email generator',
+		user_agent: USER_AGENT.sample,
+		referrer: GOOGLE_HOST,
+		data_source: 'web',
+		campaign_source: 'google',
+		campaign_medium: 'organic',
+		campaign_keyword: 'fake email id generator'
+	}
 
-tor_proxy = TorManager::Proxy.new tor_process: tor_process
-
-pageview_hash = {
-	path: '/',
-	hostname: HOST,
-	title: 'Temporary Disposable Email generator',
-	user_agent: USER_AGENT.sample,
-	referrer: GOOGLE_HOST,
-	data_source: 'web',
-	campaign_source: 'google',
-	campaign_medium: 'organic',
-	campaign_keyword: 'fake email id generator'
-}
-
-tor_proxy.proxy  do
-	50.times do |i|
-		tracker = Staccato.tracker('UA-173576841-1', nil, ssl: true)
-		puts 'requesting...'
+	ENV['http_proxy'] = 'https://1.20.100.227:57396'
+	tracker = Staccato.tracker('UA-173576841-1', nil, ssl: true)
+	puts 'requesting...'
+	begin
 		tracker.pageview(pageview_hash)
-		if(i % 5 == 0)
-			begin
-				tor_ip_control.get_new_ip
-			rescue
-			end
-		end
+	rescue
 	end
 end
 
-tor_process.stop
-system('eye q -s')
+
