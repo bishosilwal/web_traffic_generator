@@ -30,27 +30,47 @@ USER_AGENT = [
 	"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.517 Safari/537.36"
 ]
 
+ip_lists = []
+file = File.open("./ip_lists/proxy_ip_lists.txt", 'r')
+file.each_line do |line|
+	ip_lists << line.gsub("\n", '')
+end
+file.close
+ip_lists = ip_lists.compact
 
-10.times do |i|
-	pageview_hash = {
-		path: '/',
-		hostname: HOST,
-		title: 'Temporary Disposable Email generator',
-		user_agent: USER_AGENT.sample,
-		referrer: GOOGLE_HOST,
-		data_source: 'web',
-		campaign_source: 'google',
-		campaign_medium: 'organic',
-		campaign_keyword: 'fake email id generator'
-	}
+threads = []
 
-	ENV['http_proxy'] = 'https://1.20.100.227:57396'
-	tracker = Staccato.tracker('UA-173576841-1', nil, ssl: true)
-	puts 'requesting...'
-	begin
-		tracker.pageview(pageview_hash)
-	rescue
+20.times do |i|
+	threads << Thread.new do
+		30.times do 
+			
+			pageview_hash = {
+				path: '/',
+				hostname: HOST,
+				title: 'Temporary Disposable Email generator',
+				user_agent: USER_AGENT.sample,
+				referrer: GOOGLE_HOST,
+				data_source: 'web',
+				campaign_source: 'google',
+				campaign_medium: 'organic',
+				campaign_keyword: 'fake email id generator'
+			}
+
+			ENV['http_proxy'] = 'https://' + ip_lists.sample
+			tracker = Staccato.tracker('UA-173576841-1', nil, ssl: true)
+			3.times do
+				begin
+					puts 'requesting...'
+					response = tracker.pageview(pageview_hash)
+					puts "response: #{response}"
+				rescue
+					ENV['http_proxy'] = 'https://' + ip_lists.sample
+				end
+			end
+		end
 	end
 end
+
+threads.each(&:join)
 
 
