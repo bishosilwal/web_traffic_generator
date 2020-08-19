@@ -41,7 +41,7 @@ ip_lists = ip_lists.compact
 threads = []
 
 def organic_source(v)
-	return 'google' if(v % 2 == 0)
+	return 'google' if(v % 3 == 0)
 	['google', 'yahoo', 'dockdockgo', 'bing', 'baidu', 'ask', 'alice', 'aol', 'cnn', 'live', 'msn'].sample
 end
 
