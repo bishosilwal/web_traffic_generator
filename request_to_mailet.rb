@@ -42,19 +42,30 @@ threads = []
 
 20.times do |i|
 	threads << Thread.new do
-		30.times do 
+		30.times do |j|
 			
-			pageview_hash = {
-				path: '/',
-				hostname: HOST,
-				title: 'Temporary Disposable Email generator',
-				user_agent: USER_AGENT.sample,
-				referrer: GOOGLE_HOST,
-				data_source: 'web',
-				campaign_source: 'google',
-				campaign_medium: 'organic',
-				campaign_keyword: 'fake email id generator'
-			}
+			if(j % 5 == 0)
+				pageview_hash = {
+					path: '/',
+					hostname: HOST,
+					title: 'Temporary Disposable Email generator',
+					user_agent: USER_AGENT.sample,
+					referrer: GOOGLE_HOST,
+					data_source: 'web'
+				}
+			else
+				pageview_hash = {
+					path: '/',
+					hostname: HOST,
+					title: 'Temporary Disposable Email generator',
+					user_agent: USER_AGENT.sample,
+					referrer: GOOGLE_HOST,
+					data_source: 'web',
+					campaign_source: 'google',
+					campaign_medium: 'organic',
+					campaign_keyword: 'fake email id generator'
+				}
+			end
 
 			ENV['http_proxy'] = 'https://' + ip_lists.sample
 			tracker = Staccato.tracker('UA-173576841-1', nil, ssl: true)
