@@ -3,7 +3,7 @@ require 'rubygems'
 require 'selenium-webdriver'
 require 'tormanager'
 
-HOST = 'https://mailet.in'
+HOST = 'https://www.youtube.com/watch?v=GhZ0m4rqkXw'
 USER_AGENT = [
 	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
 	"Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; Media Center PC 6.0; InfoPath.3; MS-RTC LM 8; Zune 4.7)",
@@ -66,7 +66,7 @@ threads = []
 mutex = Mutex.new
 
 begin
-	20.times do
+	10.times do
 		current_port = PORT_POOL.keys.sample
 		until !used_ports.include?(current_port) do
 			current_port = PORT_POOL.keys.sample
@@ -98,11 +98,12 @@ begin
 
 			tor_process.start
 
-			20.times do |i|
-				rand(2..5).times do
+			10.times do |i|
+				3.times do
 					puts "make request to #{HOST}"
 					begin
 						browser.get(HOST)
+						sleep 2
 					rescue
 
 					end
@@ -132,10 +133,10 @@ begin
 			tor_process.stop
 
 			wait = Selenium::WebDriver::Wait.new(timeout: 30)
-			begin
-				wait.until { !browser.find_element(class: 'mail').text.empty? }
-			rescue
-			end
+			# begin
+			# 	wait.until { !browser.find_element(class: 'mail').text.empty? }
+			# rescue
+			# end
 			browser.quit
 		end
 	end
