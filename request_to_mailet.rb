@@ -41,14 +41,18 @@ ip_lists = ip_lists.compact
 threads = []
 
 def organic_source(v)
-	return 'google' if(v % 3 == 0)
-	['google', 'yahoo', 'dockdockgo', 'bing', 'baidu', 'ask', 'alice', 'aol', 'cnn', 'live', 'msn'].sample
+	return 'google' if(v % 2 == 0)
+	['google', 'yahoo', 'dockdockgo', 'bing', 'baidu', 'ask', 'aol', 'live', 'msn'].sample
+end
+
+def generate_path
+	['/', '/mail/send', '/mail_address/change', '/video_chat/new', '/video_chat/join', '/blog/temporary-disposable-email-address', '/blog/what-we-offer-at-mailet'].sample
 end
 
 def build_pageview_hash(organic = true, value)
 	if organic
 		{
-			path: '/',
+			path: generate_path,
 			hostname: HOST,
 			title: 'Temporary Disposable Email generator',
 			user_agent: USER_AGENT.sample,
@@ -60,7 +64,7 @@ def build_pageview_hash(organic = true, value)
 		}
 	else 
 		{
-			path: '/',
+			path: generate_path,
 			hostname: HOST,
 			title: 'Temporary Disposable Email generator',
 			user_agent: USER_AGENT.sample,
@@ -76,16 +80,18 @@ begin
 	30.times do |i|
 		threads << Thread.new do
 			20.times do |j|
-				organic = (j % 4 == 0) ? false : true
+				organic = (j % 5 == 0) ? false : true
 				pageview_hash = build_pageview_hash(organic, j)
 
 				ENV['http_proxy'] = 'https://' + ip_lists.sample
 				tracker = Staccato.tracker('UA-173576841-1', nil, ssl: true)
-				3.times do
+        4.times do
 					begin
 						puts 'requesting...'
 						response = tracker.pageview(pageview_hash)
 						puts "response: #{response}"
+            pageview_hash[:path] = generate_path
+            sleep 10
 					rescue
 						puts 'timeout! changing ip'
 						ENV['http_proxy'] = 'https://' + ip_lists.sample
