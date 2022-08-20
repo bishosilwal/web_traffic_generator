@@ -1,9 +1,8 @@
 
 require 'rubygems'
 require 'selenium-webdriver'
-require 'tormanager'
 
-HOST = 'https://www.youtube.com/watch?v=GhZ0m4rqkXw'
+HOST = 'https://mailet.in'
 USER_AGENT = [
 	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
 	"Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; Media Center PC 6.0; InfoPath.3; MS-RTC LM 8; Zune 4.7)",
@@ -27,122 +26,63 @@ USER_AGENT = [
 	"Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1500.55 Safari/537.36",
 	"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.517 Safari/537.36"
 ]
-PORT_POOL = { 
-	9050 => 50501,
-	9051 => 50502, 
-	9052 => 50503, 
-	9053 => 50504, 
-	9054 => 50505, 
-	9055 => 50506, 
-	9056 => 50507, 
-	9057 => 50508,
-	9058 => 50509,
-	9059 => 50510,
-	9060 => 50511,
-	9061 => 50512,
-	9062 => 50513,
-	9063 => 50514,
-	9064 => 50515,
-	9065 => 50516,
-	9066 => 50517,
-	9067 => 50518,
-	9068 => 50519,
-	9069 => 50520,
-	9070 => 50521,
-	9071 => 50522,
-	9072 => 50523,
-	9073 => 50524,
-	9074 => 50525,
-	9075 => 50526,
-	9076 => 50527,
-	9077 => 50528,
-	9078 => 50529,
-	9079 => 50530
-}
 
 used_ports = []
 threads = []
+ip_lists = []
+file = File.open("./ip_lists/proxy_ip_lists.txt", 'r')
+file.each_line do |line|
+	ip_lists << line.gsub("\n", '')
+end
+file.close
+ip_lists = ip_lists.compact
 
 mutex = Mutex.new
 
 begin
-	10.times do
-		current_port = PORT_POOL.keys.sample
-		until !used_ports.include?(current_port) do
-			current_port = PORT_POOL.keys.sample
-		end
-		used_ports << current_port
+	20.times do
 		threads << Thread.new do
-			puts "using port: #{current_port}"
-			# tor configuration
-			tor_process =TorManager::TorProcess.new tor_port: current_port,
-			                             control_port: PORT_POOL[current_port],
-			                             pid_dir: '/Users/silwal/files/workspace/traffic-generator/tor/pid/dir',
-			                             log_dir: '/Users/silwal/files/workspace/traffic-generator/tor/log/dir',
-			                             tor_data_dir: '/Users/silwal/files/workspace/traffic-generator/tor/datadir',
-			                             tor_new_circuit_period: 15,
-			                             max_tor_memory_usage_mb: 400,
-			                             max_tor_cpu_percentage: 15,
-			                             eye_logging: true,
-			                             tor_logging: true
-
-			tor_proxy = TorManager::Proxy.new tor_process: tor_process
-			tor_ip_control = TorManager::IpAddressControl.new tor_process: tor_process, tor_proxy: tor_proxy
-			# selenium configuration
-			proxy = Selenium::WebDriver::Proxy.new(socks: "127.0.0.1:#{current_port}", socks_version: 5)
-			cap   = Selenium::WebDriver::Remote::Capabilities.chrome(proxy: proxy)
-			options = Selenium::WebDriver::Chrome::Options.new
+			sample_ip = ip_lists.sample.strip
+			profile = Selenium::WebDriver::Firefox::Profile.new
+			proxy = Selenium::WebDriver::Proxy.new(http: sample_ip , ssl: sample_ip)
+			profile.proxy = proxy
+			options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
 			options.headless!
-			options.add_argument("--user-agent=#{USER_AGENT.sample}")
-			browser = Selenium::WebDriver.for(:chrome, desired_capabilities: cap, options: options)
-
-			tor_process.start
+			browser = Selenium::WebDriver.for :firefox, options: options
 
 			10.times do |i|
-				3.times do
+				1.times do
 					puts "make request to #{HOST}"
 					begin
 						browser.get(HOST)
-						sleep 2
-					rescue
-
+						wait = Selenium::WebDriver::Wait.new(timeout: 10) # seconds
+						wait.until { browser.find_element(tag_name: 'iframe') }
+						browser.find_element(tag_name: 'body').click
+					rescue => e
+						puts "error! #{e}"
 					end
 				end
 
-				begin
-					mutex.synchronize do
-						puts "changing ip(count: #{i})..."
-						tor_ip_control.get_new_ip
-					end
-				rescue
-					puts "IP change failed, running tor on port: #{current_port} failed to change ip!"
-				end
+				mutex.synchronize do
+					browser.quit
 
-				if(i % 3 == 0)
-					mutex.synchronize do
-						tor_process.stop
-						tor_process.start
-						browser.quit
-
-						options.add_argument("--user-agent=#{USER_AGENT.sample}")
-						browser = Selenium::WebDriver.for(:chrome, desired_capabilities: cap, options: options)
-					end
+					options.add_argument("--user-agent=#{USER_AGENT.sample}")
+					browser = Selenium::WebDriver.for :firefox, options: options
 				end
 			end
 
-			tor_process.stop
-
-			wait = Selenium::WebDriver::Wait.new(timeout: 30)
+			wait = Selenium::WebDriver::Wait.new(timeout: 10)
 			# begin
 			# 	wait.until { !browser.find_element(class: 'mail').text.empty? }
 			# rescue
 			# end
+
 			browser.quit
+
 		end
 	end
 
 	threads.each {|thr| thr.join }
 ensure
 	# stop all eye monitoring process
-	system('eye q -s')
 end
