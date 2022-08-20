@@ -1,6 +1,10 @@
 
 require 'rubygems'
 require 'selenium-webdriver'
+require 'pry'
+require 'base64'
+# For simple HTTP.get
+require 'net/http'
 
 HOST = 'https://mailet.in'
 USER_AGENT = [
@@ -30,6 +34,7 @@ USER_AGENT = [
 used_ports = []
 threads = []
 ip_lists = []
+firefox_extension = File.open("./autoauth-firefox-extension.xpi", 'r')
 file = File.open("./ip_lists/proxy_ip_lists.txt", 'r')
 file.each_line do |line|
 	ip_lists << line.gsub("\n", '')
@@ -40,38 +45,40 @@ ip_lists = ip_lists.compact
 mutex = Mutex.new
 
 begin
-	20.times do
+	1.times do
 		threads << Thread.new do
 			sample_ip = ip_lists.sample.strip
 			profile = Selenium::WebDriver::Firefox::Profile.new
-			proxy = Selenium::WebDriver::Proxy.new(http: sample_ip , ssl: sample_ip)
+			proxy = Selenium::WebDriver::Proxy.new(http: sample_ip , ssl: sample_ip, socks: sample_ip)
 			profile.proxy = proxy
-			options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
-			options.headless!
+			options = Selenium::WebDriver::Firefox::Options.new profile: profile
+			options.add_argument("--user-agent=#{USER_AGENT.sample}")
+			# options.headless!
 			browser = Selenium::WebDriver.for :firefox, options: options
 
-			10.times do |i|
+			1.times do |i|
 				1.times do
 					puts "make request to #{HOST}"
 					begin
 						browser.get(HOST)
-						wait = Selenium::WebDriver::Wait.new(timeout: 10) # seconds
-						wait.until { browser.find_element(tag_name: 'iframe') }
+						wait = Selenium::WebDriver::Wait.new(timeout: 20) # seconds
+						browser.execute_script("window.scrollTo(0, #{rand(500)})")
+						wait.until { browser.find_elements(tag_name: 'iframe').length > 3 }
 						browser.find_element(tag_name: 'body').click
 					rescue => e
 						puts "error! #{e}"
 					end
 				end
 
-				mutex.synchronize do
-					browser.quit
+				# mutex.synchronize do
+				# 	browser.quit
 
-					options.add_argument("--user-agent=#{USER_AGENT.sample}")
-					browser = Selenium::WebDriver.for :firefox, options: options
-				end
+				# 	options.add_argument("--user-agent=#{USER_AGENT.sample}")
+				# 	browser = Selenium::WebDriver.for :firefox, options: options
+				# end
 			end
 
-			wait = Selenium::WebDriver::Wait.new(timeout: 10)
+			# wait = Selenium::WebDriver::Wait.new(timeout: 10)
 			# begin
 			# 	wait.until { !browser.find_element(class: 'mail').text.empty? }
 			# rescue
