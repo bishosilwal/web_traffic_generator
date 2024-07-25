@@ -34,7 +34,6 @@ USER_AGENT = [
 used_ports = []
 threads = []
 ip_lists = []
-firefox_extension = File.open("./autoauth-firefox-extension.xpi", 'r')
 file = File.open("./ip_lists/proxy_ip_lists.txt", 'r')
 file.each_line do |line|
 	ip_lists << line.gsub("\n", '')
@@ -45,7 +44,7 @@ ip_lists = ip_lists.compact
 mutex = Mutex.new
 
 begin
-	1.times do
+	20.times do
 		threads << Thread.new do
 			sample_ip = ip_lists.sample.strip
 			profile = Selenium::WebDriver::Firefox::Profile.new

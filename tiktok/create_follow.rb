@@ -3,10 +3,8 @@ require 'rubygems'
 require 'net/http'
 require 'byebug'
 
-# views 53 views•Aug 17, 2020
-HOST = 'https://mailet.in'
-GOOGLE_HOST = 'https://www.google.com'
-
+HOST = 'https://tiktok.com/'
+TARGET_ACCOUNT="@kangiduy_"
 USER_AGENT = [
 	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
 	"Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; Media Center PC 6.0; InfoPath.3; MS-RTC LM 8; Zune 4.7)",
@@ -31,22 +29,12 @@ USER_AGENT = [
 	"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.517 Safari/537.36"
 ]
 
-ip_lists = []
-file = File.open("./ip_lists/proxy_ip_lists.txt", 'r')
-file.each_line do |line|
-	ip_lists << line.gsub("\n", '')
-end
-file.close
-ip_lists = ip_lists.compact
-
-threads = []
-
+tiktok_accounts = [{ email: 'aayussilwal@gmail.com', password: '' }]
 
 begin
 	1.times do |i|
 		threads << Thread.new do
 			20.times do |j|
-				ENV['http_proxy'] = 'https://' + ip_lists.sample
 				3.times do
 					begin
 						puts 'requesting...'∑
